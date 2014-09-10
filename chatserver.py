@@ -8,17 +8,23 @@ port=80
 pingback=10
 buff=1024
 #------------#
-
+print('Creating server socket')
 server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+print('Binding server')
 server.bind((host,port))
+print('Completed,starting chatting protocol')
 server.listen(pingback)
 input=[server]
 output=[]
 running=True
+print('Protocol started on: ',port,'  '+socket.gethostname())
 i=0
 
 while True:
-    inputready,outputready,exceptready=select.select(input,output,[])
+    try:
+        inputready,outputready,exceptready=select.select(input,output,[])
+    except ValueError as e:
+        pass
 
     for s in inputready:
 
@@ -28,21 +34,16 @@ while True:
             print('Connected clients: ',i)
             input.append(client)
             output.append(client)
-
-        elif s==sys.stdin:
-            j=sys.stdin.readline()
-            running=False
-
+            
         else:
             
             try:
                 data=s.recv(1024)
                 
             except socket.error as e:
-                s.close()
-                input.remove(s)
-                i-=1
-                output.remove(s)
+                pass
+            except OsError:
+                pass
             
             if data:
                 print(data)
@@ -58,8 +59,9 @@ while True:
                             
             else:
                 s.close()
-                input.remove(s)
-                i-=1
+                if s in input:
+                    input.remove(s)
+                    i-=1
 server.close()
                 
             

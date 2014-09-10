@@ -13,8 +13,7 @@ class write(threading.Thread):
             a=input('>>')
             if a!='':
                 client.send(bytes(nick+': '+a,'UTF-8'))
-            else:
-                client.close()
+            
 
 class read(threading.Thread):
     def run(self):
